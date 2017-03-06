@@ -1,2 +1,5 @@
 Just kidding, this is not important.
 And now the message will be better.
+
+Feature 2 implemented.
+Attempt to fix master job.
