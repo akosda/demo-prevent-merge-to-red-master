@@ -43,8 +43,8 @@ def processCommitMessage() {
 
 def setRequiredStatusCheck() {
   if(buildMarkedAsFailed) {
-    sh 'echo Setting master-is-red required status check on master branch'
+    echo 'Setting master-is-red required status check on master branch'
   } else {
-    sh 'echo Removing master-is-red required status check on master branch'
+    echo 'Removing master-is-red required status check on master branch'
   }
 }
