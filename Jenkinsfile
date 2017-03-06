@@ -42,9 +42,11 @@ def processCommitMessage() {
 }
 
 def setRequiredStatusCheck() {
-  if(buildMarkedAsFailed) {
-    echo 'Setting master-is-red required status check on master branch'
-  } else {
-    echo 'Removing master-is-red required status check on master branch'
+  node {
+    if(buildMarkedAsFailed) {
+      sh 'echo Setting master-is-red required status check on master branch'
+    } else {
+      sh 'echo Removing master-is-red required status check on master branch'
+    }
   }
 }
