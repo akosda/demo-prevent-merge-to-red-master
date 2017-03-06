@@ -29,16 +29,14 @@ def withPostActions(actions, body) {
 
 
 def processCommitMessage() {
-  sh '''
-    COMMIT_ID=`git log -1 --format="id=%H"`
-    COMMIT_MSG=`git log -1 --format="msg=%s"`
-    if [[ $COMMIT_MSG == *"fix-master-job"* ]]; then
-      echo "Setting continuous-integration/master-is-red context on $COMMIT_ID to 'success'..."
-      echo "Faking GitHub API call!"
-    else
-      echo "Commit message does not match fix pattern. Skipping GitHub API call."
-    fi
-  '''
+  echo 'Processing commit message'
+  withCredentials([[$class: 'StringBinding', credentialsId: 'akosda-github-personal-token', variable: 'GITHUB_TOKEN']]) {
+    sh '''
+      COMMIT_ID=`git log -1 --format="id=%H"`
+      COMMIT_MSG=`git log -1 --format="msg=%s"`
+      scripts/set-context-status.sh $GITHUB_TOKEN "${COMMIT_ID}" "${COMMIT_MSG}"
+    '''
+  }
 }
 
 def updateBranchProtection() {
