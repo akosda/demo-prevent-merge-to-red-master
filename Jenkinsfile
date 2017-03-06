@@ -40,12 +40,14 @@ def processCommitMessage() {
 }
 
 def updateBranchProtection() {
-  node {
-    checkout scm
-    if(buildMarkedAsFailed) {
-      addRequiredStatusCheck()
-    } else {
-      removeRequiredStatusCheck()
+  if(onMasterBranch()) {
+    node {
+      checkout scm
+      if(buildMarkedAsFailed) {
+        addRequiredStatusCheck()
+      } else {
+        removeRequiredStatusCheck()
+      }
     }
   }
 }
@@ -62,4 +64,41 @@ def removeRequiredStatusCheck() {
   withCredentials([[$class: 'StringBinding', credentialsId: 'akosda-github-personal-token', variable: 'GITHUB_TOKEN']]) {
     sh 'scripts/remove-status-check.sh $GITHUB_TOKEN'
   }
+}
+
+enum BUILD_TYPE {
+    MASTER, FEATURE_BRANCH, PULL_REQUEST, NOT_DEFINED
+}
+
+def currentBranch() {
+    env.BRANCH_NAME
+}
+
+BUILD_TYPE buildType() {
+    if (currentBranch() == 'master') BUILD_TYPE.MASTER
+    else if (currentBranch() =~ /PROD.*|prod.*/) BUILD_TYPE.FEATURE_BRANCH
+    else if (currentBranch() =~ /PR-.*/) BUILD_TYPE.PULL_REQUEST
+    else BUILD_TYPE.NOT_DEFINED
+}
+
+def onMasterBranch() {
+    buildType() == BUILD_TYPE.MASTER
+}
+
+def onPullRequest() {
+    buildType() == BUILD_TYPE.PULL_REQUEST
+}
+
+def pullRequestId() {
+    currentBranch().replace('PR-', '')
+}
+
+def repoNameInPullRequest() {
+    def organization = env.CHANGE_URL.split("/")[3]
+    def repo = env.CHANGE_URL.split("/")[4]
+    organization + "/" + repo
+}
+
+def isBuildSuccessful() {
+    (!currentBuild.result && !buildMarkedAsFailed)
 }
