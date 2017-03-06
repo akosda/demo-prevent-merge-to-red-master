@@ -32,8 +32,8 @@ def processCommitMessage() {
   echo 'Processing commit message'
   withCredentials([[$class: 'StringBinding', credentialsId: 'akosda-github-personal-token', variable: 'GITHUB_TOKEN']]) {
     sh '''
-      COMMIT_ID=`git log -1 --format="id=%H"`
-      COMMIT_MSG=`git log -1 --format="msg=%s"`
+      COMMIT_ID=`git log -1 --format="%H"`
+      COMMIT_MSG=`git log -1 --format="%s"`
       scripts/set-context-status.sh $GITHUB_TOKEN "${COMMIT_ID}" "${COMMIT_MSG}"
     '''
   }
