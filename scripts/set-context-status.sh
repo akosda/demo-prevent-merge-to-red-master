@@ -8,7 +8,6 @@ set +x
 
 if [[ ${COMMIT_MSG} == *"fix-master-job"* ]]; then
   echo "Setting continuous-integration/master-is-red context on ${COMMIT_ID} to 'success'..."
-  echo "Faking GitHub API call!"
   # preview API
   curl \
     -XPOST \
@@ -22,5 +21,5 @@ if [[ ${COMMIT_MSG} == *"fix-master-job"* ]]; then
       \"context\": \"continuous-integration/master-is-red\"
   }"
 else
-  echo "Commit message does not match fix pattern. Skipping GitHub API call."
+  echo "Commit message does not contain 'fix-master-job'. Skipping GitHub API call."
 fi
