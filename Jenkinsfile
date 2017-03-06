@@ -1,6 +1,6 @@
 buildMarkedAsFailed = false
 
-withPostActions(['setRequiredStatusCheck']) {
+withPostActions(['updateBranchProtection']) {
   node {
     stage ('setup') {
       deleteDir()
@@ -41,12 +41,27 @@ def processCommitMessage() {
   '''
 }
 
-def setRequiredStatusCheck() {
+def updateBranchProtection() {
   node {
+    checkout scm
     if(buildMarkedAsFailed) {
-      sh 'echo Setting master-is-red required status check on master branch'
+      addRequiredStatusCheck()
     } else {
-      sh 'echo Removing master-is-red required status check on master branch'
+      removeRequiredStatusCheck()
     }
+  }
+}
+
+def addRequiredStatusCheck() {
+  echo 'Adding master-is-red required status check on master branch'
+  withCredentials([[$class: 'StringBinding', credentialsId: 'akosda-github-personal-token', variable: 'GITHUB_TOKEN']]) {
+    sh 'scripts/add-status-check.sh $GITHUB_TOKEN'
+  }
+}
+
+def removeRequiredStatusCheck() {
+  echo 'Removing master-is-red required status check on master branch'
+  withCredentials([[$class: 'StringBinding', credentialsId: 'akosda-github-personal-token', variable: 'GITHUB_TOKEN']]) {
+    sh 'scripts/remove-status-check.sh $GITHUB_TOKEN'
   }
 }
